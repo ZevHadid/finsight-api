@@ -4,7 +4,7 @@ from fastapi_csrf_protect import CsrfProtect
 from fastapi_csrf_protect.exceptions import CsrfProtectError
 
 from app.core.config import settings
-from app.api.v1.endpoints import auth, home
+from app.api.v1.endpoints import auth, home, transaction
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -24,6 +24,7 @@ def csrf_protect_exception_handler(request: Request, exc: CsrfProtectError):
 
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
 app.include_router(home.router, prefix="/api/v1/home", tags=["Home"])
+app.include_router(transaction.router, prefix="/api/v1", tags=["Transactions"])
 
 @app.get("/")
 async def root():
