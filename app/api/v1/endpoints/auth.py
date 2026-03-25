@@ -1,7 +1,6 @@
 from datetime import timedelta
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from redis import Redis
 
@@ -9,7 +8,7 @@ from app.core.config import settings
 from app.core.security import create_access_token, create_refresh_token, verify_password
 from app.api import deps
 from app.services import user_service
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserLogin
 from app.models.user import User
 
 router = APIRouter()
@@ -17,15 +16,15 @@ router = APIRouter()
 @router.post("/login")
 async def login_for_access_token(
     response: Response,
+    user_in: UserLogin,
     db: Session = Depends(deps.get_db),
-    form_data: OAuth2PasswordRequestForm = Depends(),
     redis_client: Redis = Depends(deps.get_redis_client)
 ) -> Any:
-    user = user_service.get_user_by_email(db, email=form_data.username)
-    if not user or not verify_password(form_data.password, user.hashed_password):
+    user = user_service.get_user_by_email(db, email=user_in.email)
+    if not user or not verify_password(user_in.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)

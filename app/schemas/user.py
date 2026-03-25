@@ -23,3 +23,7 @@ class User(UserInDBBase):
 
 class UserInDB(UserInDBBase):
     hashed_password: str
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str

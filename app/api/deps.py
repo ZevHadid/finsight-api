@@ -1,6 +1,5 @@
 from typing import Generator, Optional
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, status, Request
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 from redis import Redis
@@ -11,7 +10,6 @@ from app.core.security import decode_token
 from app.models.user import User
 from app.schemas.token import TokenPayload
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
 
 def get_db() -> Generator:
     try:
@@ -21,13 +19,23 @@ def get_db() -> Generator:
         db.close()
 
 def get_current_user(
-    db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)
+    db: Session = Depends(get_db), request: Request = None
 ) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+    token = None
+    # Try to get token from cookie first
+    if request and "access_token" in request.cookies:
+        token = request.cookies["access_token"]
+    
+    # If still no token, raise exception
+    if not token:
+        raise credentials_exception
+
     try:
         payload = decode_token(token)
         if payload is None:
