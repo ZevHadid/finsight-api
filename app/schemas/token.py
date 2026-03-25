@@ -7,3 +7,4 @@ class Token(BaseModel):
 class TokenPayload(BaseModel):
     sub: int = None
     exp: int = None
+    type: str = None
