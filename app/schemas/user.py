@@ -4,6 +4,7 @@ from pydantic import BaseModel, EmailStr, Field
 class UserBase(BaseModel):
     name: str
     email: EmailStr
+    is_admin: Optional[bool] = False
 
 class UserCreate(UserBase):
     password: str = Field(..., max_length=72)
