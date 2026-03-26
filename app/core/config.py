@@ -24,6 +24,9 @@ class Settings(BaseSettings):
 
     CSRF_SECRET: str = os.getenv("CSRF_SECRET", "your-csrf-secret")
 
+    FIRST_USER_ADMIN_EMAIL: str = os.getenv("FIRST_USER_ADMIN_EMAIL", "admin@finsight.com")
+    FIRST_USER_ADMIN_PASSWORD: str = os.getenv("FIRST_USER_ADMIN_PASSWORD", "admin123")
+
     class Config:
         case_sensitive = True
 

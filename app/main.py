@@ -5,24 +5,6 @@ from fastapi_csrf_protect.exceptions import CsrfProtectError
 
 from app.core.config import settings
 from app.api.v1.endpoints import auth, home, transaction, category, admin
-from app.db.base import Base
-from app.db.session import engine, DATABASE_URL, SessionLocal
-from app.db.seed import seed_db
-from sqlalchemy_utils import database_exists, create_database
-
-# Create database if it doesn't exist
-if not database_exists(DATABASE_URL):
-    create_database(DATABASE_URL)
-
-# Create tables in the database
-Base.metadata.create_all(bind=engine)
-
-# Seed default data
-db = SessionLocal()
-try:
-    seed_db(db)
-finally:
-    db.close()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

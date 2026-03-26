@@ -62,11 +62,16 @@ def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
         )
     return current_user
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 def get_redis_client() -> Redis:
     client = Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
     try:
         client.ping()
         return client
     except RedisConnectionError:
-        print("WARNING: Redis server not found. Falling back to in-memory storage for testing.")
+        logger.warning("Redis server not found at %s:%s. Falling back to in-memory storage.", 
+                       settings.REDIS_HOST, settings.REDIS_PORT)
         return _redis_mock
