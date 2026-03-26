@@ -170,3 +170,8 @@ yt-dlp==2026.3.17
 yt-dlp-ejs==0.8.0
 ytmusicapi==1.11.5
 zipp==3.21.0
+pymysql==1.1.1
+fastapi-csrf-protect==1.0.7
+python-jose[cryptography]==3.4.0
+sqlalchemy-utils==0.41.2
+argon2-cffi==23.1.0

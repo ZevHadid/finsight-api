@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel, Field
 
@@ -50,3 +50,13 @@ class TransactionInDBBase(TransactionBase):
 
 class Transaction(TransactionInDBBase):
     pass
+
+class CategorySummary(BaseModel):
+    category: str
+    total_amount: float
+
+class TransactionSummary(BaseModel):
+    total_income: float
+    total_expense: float
+    balance: float
+    expenses_by_category: List[CategorySummary]

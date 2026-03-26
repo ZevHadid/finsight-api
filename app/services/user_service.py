@@ -8,10 +8,19 @@ def get_user_by_id(db: Session, user_id: int):
 
 def get_user_by_email(db: Session, email: str):
     return db.query(User).filter(User.email == email).first()
-
 def create_user(db: Session, user: UserCreate):
     hashed_password = get_password_hash(user.password)
-    db_user = User(name=user.name, email=user.email, hashed_password=hashed_password)
+    
+    # Auto-admin for the first user
+    is_first_user = db.query(User).count() == 0
+    admin_role = user.is_admin or is_first_user
+
+    db_user = User(
+        name=user.name, 
+        email=user.email, 
+        hashed_password=hashed_password,
+        is_admin=admin_role
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)

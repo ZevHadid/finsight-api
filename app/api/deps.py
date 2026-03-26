@@ -2,7 +2,11 @@ from typing import Generator, Optional
 from fastapi import Depends, HTTPException, status, Request
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
-from redis import Redis
+from redis import Redis, ConnectionError as RedisConnectionError
+from app.core.redis_mock import RedisMock
+
+# Global instance for in-memory fallback
+_redis_mock = RedisMock()
 
 from app.db.session import SessionLocal
 from app.core.config import settings
@@ -50,5 +54,19 @@ def get_current_user(
         raise credentials_exception
     return user
 
+def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The user does not have enough privileges",
+        )
+    return current_user
+
 def get_redis_client() -> Redis:
-    return Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
+    client = Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
+    try:
+        client.ping()
+        return client
+    except RedisConnectionError:
+        print("WARNING: Redis server not found. Falling back to in-memory storage for testing.")
+        return _redis_mock
